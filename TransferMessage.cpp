@@ -1,3 +1,4 @@
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <tuple>
@@ -333,8 +334,18 @@ int main(int argc, char* argv[])
 	const std::string json{payload.to_json()};
 	std::cout << json << std::endl;
 
+	std::time_t t = std::time(0);
+	std::string file_name{"sign_"};
+	file_name += std::to_string(t) + ".json";
+	std::ofstream result_file(file_name);
+	if (result_file.is_open())
+	{
+		result_file << json;
+		result_file.close();
+	}
+
 	return EXIT_SUCCESS;
-	
+
 	/** Checker*/
 	transfer_payload payload_from_json;
 	payload_from_json.from_json(json);
