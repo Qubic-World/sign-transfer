@@ -82,11 +82,9 @@ struct transfer_payload
 		std::string signature_str;
 		for (const auto& symbol : signature)
 		{
-			signature_str += std::to_string(symbol);
-			signature_str += ".";
+			signature_str += static_cast<uint8_t>('a' + (symbol >> 4));
+			signature_str += static_cast<uint8_t>('a' + (symbol & 0x0F));
 		}
-		signature_str.erase(signature_str.length() - 1);
-		// json += std::string(std::begin(signature), std::end(signature));
 		json += signature_str;
 		json += "\"\n}";
 
@@ -173,19 +171,11 @@ struct transfer_payload
 			return;
 		}
 
-		std::string value_concat;
-		uint8_t signature_idx{0};
-		for (const auto& value : signature_str)
+		for (size_t idx = 0, signature_idx = 0; idx < signature_str.size(); idx += 2)
 		{
-			if (value == '.')
-			{
-				this->signature[signature_idx++] = std::stoi(value_concat);
-				value_concat.clear();
-			}
-			else
-			{
-				value_concat += value;
-			}
+			const uint8_t high{static_cast<uint8_t>((signature_str[idx] - 'a') << 4)};
+			const uint8_t low{static_cast<uint8_t>(signature_str[idx + 1] - 'a')};
+			this->signature[signature_idx++] = high | low;
 		}
 	}
 
@@ -330,6 +320,11 @@ int main(int argc, char* argv[])
 
 	/** Result*/
 	auto& payload{std::get<1>(result)};
+
+	for (const auto& s : payload.signature)
+	{
+	}
+	std::cout << std::endl;
 	std::wcout << L"Result:" << std::endl;
 	const std::string json{payload.to_json()};
 	std::cout << json << std::endl;
@@ -349,6 +344,13 @@ int main(int argc, char* argv[])
 	/** Checker*/
 	transfer_payload payload_from_json;
 	payload_from_json.from_json(json);
+
+	// unsigned char digest[32];
+	// payload_from_json.source_public[0] ^= 6;
+	// KangarooTwelve((uint8_t*)&payload_from_json, sizeof(transformation_payload) - 64, digest, sizeof(digest));
+	// payload_from_json.source_public[0] ^= 6;
+	//
+	// std::cout << verify(payload_from_json.source_public, digest, payload_from_json.signature) << std::endl;
 
 	std::wcout << L"Checker:\n";
 	std::cout << (memcmp(&payload, &payload_from_json, sizeof(transfer_payload)) == 0) << std::endl;
