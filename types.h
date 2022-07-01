@@ -9,6 +9,7 @@ namespace transfer
 		constexpr uint8_t id_len{70};
 		constexpr uint8_t signature_size{64};
 		constexpr uint8_t digest_size{32};
+		constexpr uint8_t key_size{32};
 	}
 
 	namespace types
@@ -20,7 +21,7 @@ namespace transfer
 		using tick_type = uint32_t;
 		using subseed_type = uint8_t[32];
 
-		using key_type = uint8_t[32];
+		using key_type = uint8_t[size::key_size];
 		using description_size_type = uint32_t;
 		using signature_type = uint8_t[64];
 

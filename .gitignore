@@ -34,3 +34,6 @@
 *.log
 *.vcxproj*
 x64
+
+#cmake
+**/cmake/build/*
