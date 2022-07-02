@@ -1,6 +1,11 @@
 #pragma once
 #include <cinttypes>
-#include "qubic_verify_export.h"
+#ifdef _WIN32
+    #include "qubic_verify_export_Windows.h"
+#elif __linux__
+    #include "qubic_verify_export_Linux.h"
+#endif
+
 
 extern "C" void QUBIC_VERIFY_EXPORT get_public_key_from_id(const unsigned char *identity, unsigned char *publicKey);
 extern "C" bool QUBIC_VERIFY_EXPORT verify_signature(const unsigned char *publicKey, const unsigned char *messageDigest, const unsigned char *signature);

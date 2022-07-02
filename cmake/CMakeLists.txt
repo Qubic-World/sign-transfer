@@ -23,6 +23,5 @@ add_library(qubic_verify SHARED qubic_verify_lib.cpp "../algorithms/FourQ.cpp")
 generate_export_header(qubic_verify
     BASE_NAME qubic_verify
     EXPORT_MACRO_NAME QUBIC_VERIFY_EXPORT
-    EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/qubic_verify_Export.h
+    EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/qubic_verify_Export_${CMAKE_SYSTEM_NAME}.h
 )
-set_property(TARGET qubic_verify PROPERTY CXX_STANDARD 20)

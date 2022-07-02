@@ -46,12 +46,21 @@ void get_private_key(unsigned char *subseed, unsigned char *privateKey)
 
 void get_public_key(const unsigned char *privateKey, unsigned char *publicKey)
 {
-   getPublicKey(privateKey, publicKey);
+   alignas(32) transfer::types::key_type public_key_alignas{};
+
+   getPublicKey(privateKey, public_key_alignas);
+   memcpy(publicKey, public_key_alignas, transfer::size::key_size);
 }
 
 void sign_signature(const unsigned char *subseed, const unsigned char *publicKey, const unsigned char *messageDigest, unsigned char *signature)
 {
-   sign(subseed, publicKey, messageDigest, signature);
+   alignas(32) transfer::types::signature_type signature_alignas{};
+   alignas(32) uint8_t digest_alignas[transfer::size::digest_size]{};
+
+   memcpy(digest_alignas, messageDigest, transfer::size::digest_size);
+
+   sign(subseed, publicKey, digest_alignas, signature_alignas);
+   memcpy(signature, signature_alignas, sizeof(transfer::types::signature_type));
 }
 
 void get_identity(unsigned char *const publicKey, uint16_t *identity)
