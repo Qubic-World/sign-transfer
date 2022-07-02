@@ -65,5 +65,8 @@ void sign_signature(const unsigned char *subseed, const unsigned char *publicKey
 
 void get_identity(unsigned char *const publicKey, uint16_t *identity)
 {
-   getIdentity(publicKey, identity);
+   alignas(32) transfer::types::identity_type identity_alignas{};
+   getIdentity(publicKey, identity_alignas);
+
+   memcpy(identity, identity_alignas, transfer::size::id_len * sizeof(uint16_t));
 }
