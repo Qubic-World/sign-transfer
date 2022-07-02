@@ -1,13 +1,16 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(CMAKE_CXX_STANDARD 20)
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
-endif()
-
 include(GenerateExportHeader)
 project(qubic_verify CXX)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_CXX_COMPILER "g++")
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")  
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpsabi") 
+endif()
+
+
 set(CMAKE_BUILD_TYPE Release)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -22,3 +25,4 @@ generate_export_header(qubic_verify
     EXPORT_MACRO_NAME QUBIC_VERIFY_EXPORT
     EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/qubic_verify_Export.h
 )
+set_property(TARGET qubic_verify PROPERTY CXX_STANDARD 20)

@@ -26,7 +26,35 @@ bool verify_signature(const unsigned char *publicKey, const unsigned char *messa
 
    return ::verify(public_key_alignas, digest_alignas, signature_alignas);
 }
+
 void kangaroo_twelve(unsigned char *input, unsigned long long inputByteLen, unsigned char *output, unsigned long long outputByteLen)
 {
    KangarooTwelve(input, inputByteLen, output, outputByteLen);
+}
+
+/** Sign*/
+
+bool get_subseed(const unsigned char *seed, unsigned char *subseed)
+{
+   return getSubseed(seed, subseed);
+}
+
+void get_private_key(unsigned char *subseed, unsigned char *privateKey)
+{
+   getPrivateKey(subseed, privateKey);
+}
+
+void get_public_key(const unsigned char *privateKey, unsigned char *publicKey)
+{
+   getPublicKey(privateKey, publicKey);
+}
+
+void sign_signature(const unsigned char *subseed, const unsigned char *publicKey, const unsigned char *messageDigest, unsigned char *signature)
+{
+   sign(subseed, publicKey, messageDigest, signature);
+}
+
+void get_identity(unsigned char *const publicKey, uint16_t *identity)
+{
+   getIdentity(publicKey, identity);
 }
