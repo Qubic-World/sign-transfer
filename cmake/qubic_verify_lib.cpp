@@ -55,12 +55,50 @@ void get_public_key(const unsigned char *privateKey, unsigned char *publicKey)
 void sign_signature(const unsigned char *subseed, const unsigned char *publicKey, const unsigned char *messageDigest, unsigned char *signature)
 {
    alignas(32) transfer::types::signature_type signature_alignas{};
-   alignas(32) uint8_t digest_alignas[transfer::size::digest_size]{};
+   alignas(32) transfer::types::digest_type digest_alignas{};
+   alignas(32) transfer::types::key_type public_key_alignas{};
 
    memcpy(digest_alignas, messageDigest, transfer::size::digest_size);
+   memcpy(public_key_alignas, publicKey, transfer::size::key_size);
 
-   sign(subseed, publicKey, digest_alignas, signature_alignas);
+   sign(subseed, public_key_alignas, digest_alignas, signature_alignas);
    memcpy(signature, signature_alignas, sizeof(transfer::types::signature_type));
+}
+
+class wraper final
+{
+private:
+   uint8_t *ptr_;
+
+public:
+   wraper(uint8_t *ptr) : ptr_(ptr)
+   {
+   }
+   ~wraper()
+   {
+      if (ptr_)
+      {
+         delete[] ptr_;
+      }
+   }
+};
+
+void sign_message(const unsigned char *subseed, const unsigned char *publicKey, const unsigned char *message, const uint64_t messageSize, unsigned char *signature)
+{
+   alignas(32) transfer::types::signature_type signature_alignas{};
+   alignas(32) uint8_t *message_alignas{new uint8_t[messageSize]};
+   alignas(32) transfer::types::key_type public_key_alignas{};
+   alignas(32) const uint64_t message_size_alignas{messageSize};
+
+   // wraper w{message_alignas};
+
+   memcpy(message_alignas, message, messageSize);
+   memcpy(public_key_alignas, publicKey, transfer::size::key_size);
+
+   signMessage(subseed, public_key_alignas, message_alignas, message_size_alignas, signature_alignas);
+   memcpy(signature, signature_alignas, sizeof(transfer::types::signature_type));
+
+   delete[] message_alignas;
 }
 
 void get_identity(unsigned char *const publicKey, uint16_t *identity)
