@@ -197,3 +197,44 @@ static bool verify(const unsigned char *publicKey, const unsigned char *messageD
 
 	return (_mm256_movemask_epi8(_mm256_cmpeq_epi64(*((__m256i *)A), *((__m256i *)signature))) == 0xFFFFFFFF);
 }
+
+static bool verifyMessage(const unsigned char *publicKey, const unsigned char *message, const uint64_t messageSize, const unsigned char *signature)
+{ // SchnorrQ signature verification
+  // It verifies the signature Signature of a message message of size MessageSize in bytes
+  // Inputs: 32-byte PublicKey, 64-byte Signature, and message of size MessageSize in bytes
+  // Output: true (valid signature) or false (invalid signature)
+	point_t A;
+	unsigned char h[64];
+
+	unsigned char* temp{new unsigned char[messageSize + 64]};
+
+	if (((publicKey[15] & 0x80) != 0) || ((signature[15] & 0x80) != 0) || (signature[63] != 0) || ((signature[62] & 0xC0) != 0))
+	{ // Are bit128(PublicKey) = bit128(Signature) = 0 and Signature+32 < 2^246?
+		delete[] temp;
+		return false;
+	}
+
+	if (!decode(publicKey, A)) // Also verifies that A is on the curve, if it is not it fails
+	{
+		delete[] temp;
+		return false;
+	}
+
+	memmove(temp, signature, 32);
+    memmove(temp+32, publicKey, 32);
+    memmove(temp+64, message, messageSize);
+
+	KangarooTwelve(temp, messageSize + 64, h, 64);
+
+	if (!ecc_mul_double((unsigned long long *)(signature + 32), (unsigned long long *)h, A))
+	{
+		delete[] temp;
+		return false;
+	}
+
+	encode(A, (unsigned char *)A);
+
+	delete[] temp;
+
+	return (_mm256_movemask_epi8(_mm256_cmpeq_epi64(*((__m256i *)A), *((__m256i *)signature))) == 0xFFFFFFFF);
+}
