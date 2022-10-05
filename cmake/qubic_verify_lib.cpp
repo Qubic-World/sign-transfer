@@ -42,7 +42,7 @@ bool verify_signature(const unsigned char *publicKey, const unsigned char *messa
 bool verify_message(const unsigned char *publicKey, const unsigned char *message, const uint64_t messageSize, const unsigned char *signature)
 {
    alignas(32) uint8_t public_key_alignas[transfer::size::key_size]{};
-   alignas(32) uint8_t* message_alignas{new uint8_t[messageSize]};
+   alignas(32) uint8_t *message_alignas{new uint8_t[messageSize]};
    alignas(32) uint8_t signature_alignas[transfer::size::signature_size]{};
 
    memoryWraper mw{message_alignas};
@@ -52,7 +52,6 @@ bool verify_message(const unsigned char *publicKey, const unsigned char *message
    memcpy(signature_alignas, signature, transfer::size::signature_size);
 
    return verifyMessage(public_key_alignas, message_alignas, messageSize, signature_alignas);
-
 }
 
 void kangaroo_twelve(unsigned char *input, unsigned long long inputByteLen, unsigned char *output, unsigned long long outputByteLen)
@@ -93,7 +92,6 @@ void sign_signature(const unsigned char *subseed, const unsigned char *publicKey
    memcpy(signature, signature_alignas, sizeof(transfer::types::signature_type));
 }
 
-
 void sign_message(const unsigned char *subseed, const unsigned char *publicKey, const unsigned char *message, const uint64_t messageSize, unsigned char *signature)
 {
    alignas(32) transfer::types::signature_type signature_alignas{};
@@ -116,4 +114,20 @@ void get_identity(unsigned char *const publicKey, uint16_t *identity)
    getIdentity(publicKey, identity_alignas);
 
    memcpy(identity, identity_alignas, transfer::size::id_len * sizeof(uint16_t));
+}
+
+unsigned int get_score(const unsigned char (&nonces)[][32],
+                       uint16_t nubmerOfSolutionNonces) 
+{
+    unsigned int score{0};
+    static const auto ZERO{_mm256_setzero_si256()};
+
+    for (unsigned int i = 0; i < nubmerOfSolutionNonces; ++i) {
+        if (_mm256_movemask_epi8(
+                _mm256_cmpeq_epi64(_mm256_lddqu_si256((__m256i *)nonces[i]), ZERO)) != 0xFFFFFFFF) {
+            ++score;
+        }
+    }
+
+    return score;
 }

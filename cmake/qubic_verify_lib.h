@@ -20,3 +20,5 @@ extern "C" void QUBIC_VERIFY_EXPORT sign_message(const unsigned char *subseed, c
 extern "C" void QUBIC_VERIFY_EXPORT sign_signature(const unsigned char* subseed, const unsigned char* publicKey, const unsigned char* messageDigest, unsigned char* signature);
 
 extern "C" void QUBIC_VERIFY_EXPORT get_identity(unsigned char *const publicKey, uint16_t *identity);
+
+extern "C" unsigned int QUBIC_VERIFY_EXPORT get_score(const unsigned char (&nonces)[][32], uint16_t nubmerOfSolutionNonces);
